@@ -37,21 +37,22 @@ AudioControlSGTL5000 sgtl5000_1; //xy=615,336
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
 
-float vol = 0.4; //master volume gain 0.0 - 1.0
+float vol = 0.7; //master volume gain 0.0 - 1.0
 
 #if defined(__CO2__)
 const char *idleTrack = "DRONE1.WAV";
 const char *activeTrack = "TINKLING.WAV";
-const long strip1playDur = 17000, strip2playDur = 40000; //msec duration for the button playback mode for each strip
+const long strip1playDur = 8000, strip2playDur = 10000; //msec duration for the button playback mode for each strip
+// const long strip1playDur = 17000, strip2playDur = 40000; //msec duration for the button playback mode for each strip
 #elif defined(__PM25__)
-const char *idleTrack = "DRONE1.WAV";
+const char *idleTrack = "DRONE2.WAV";
 const char *activeTrack = "RAYGUN.WAV";
 const long strip1Dur = 20000, strip2Dur = 32000; //msec duration for the button playback mode for each strip
-#endif
+#endif 
 
 //-------------------- Buttons and distance sensor --------------------//
-Bounce button0 = Bounce(0, 15); // 15 = 15 ms debounce time
-Bounce button1 = Bounce(1, 15);
+Bounce button0 = Bounce(0, 25); // 15 = 15 ms debounce time
+Bounce button1 = Bounce(1, 25);
 
 bool isButton0Pressed, isButton1Pressed; //track response to button triggered
 
@@ -59,6 +60,8 @@ const int IDLE_MODE = 1, BUTTON_MODE = 2;
 unsigned int strip1playMode = IDLE_MODE, strip2playMode = IDLE_MODE;
 bool strip1hasPlayModeChanged = false, strip2hasPlayModeChanged = false; //for audio track changes
 elapsedMillis strip1msec, strip2msec; //tracks when the button for each strip is triggered
+
+#include "myfunctions.h"
 
 /*--------------------------------------------------------------------------------
   Setup
@@ -82,7 +85,7 @@ void setup()
     while (1)
     {
       Serial.println("Unable to access the SD card");
-      delay(500);
+      delay(500); 
     }
   }
 }
@@ -99,103 +102,3 @@ void loop()
   play_audio();
 }
 
-/*--------------------------------------------------------------------------------
-  Read buttons
---------------------------------------------------------------------------------*/
-void read_buttons()
-{
-  if (strip1playMode == IDLE_MODE)
-  {
-    button0.update();
-
-    if (button0.fallingEdge())
-    {
-      isButton0Pressed = true;
-      Serial.println("button0 pressed");
-    }
-  }
-  if (strip2playMode == IDLE_MODE)
-  {
-    button1.update();
-
-    if (button1.fallingEdge())
-    {
-      isButton1Pressed = true;
-      Serial.println("button1 pressed");
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------
-  Set playmode
---------------------------------------------------------------------------------*/
-void set_playmode() 
-{
-  if (strip1msec > strip1playDur)
-  {
-    strip1playMode = IDLE_MODE;
-    strip1hasPlayModeChanged = true;
-  }
-  if (strip2msec > strip2playDur)
-  {
-    strip2playMode = IDLE_MODE;
-    strip1hasPlayModeChanged = true;
-  }
-  if (isButton0Pressed == true) //set this to false after playback mode finishes
-  {
-    strip1playMode = BUTTON_MODE;
-    strip1hasPlayModeChanged = true;
-    strip1msec = 0;
-  }
-  if (isButton1Pressed == true) //set this to false after playback mode finishes
-  {
-    strip2playMode = BUTTON_MODE;
-    strip2hasPlayModeChanged = true;
-    strip2msec = 0;
-  }
-}
-
-/*--------------------------------------------------------------------------------
-  Play audio
---------------------------------------------------------------------------------*/
-void play_audio()
-{
-  if (strip1playMode == IDLE_MODE && strip2playMode == IDLE_MODE)
-  {
-    if ((strip1hasPlayModeChanged == true || strip2hasPlayModeChanged) && playSdWav1.isPlaying() == true)
-    {
-      playSdWav1.stop();
-      playSdWav1.play(idleTrack);
-      delay(10);
-      Serial.print("Start playing ");
-      Serial.println(idleTrack);
-      strip1hasPlayModeChanged = strip2hasPlayModeChanged = false;
-    }
-    else if (playSdWav1.isPlaying() == false)
-    {
-      playSdWav1.play(idleTrack);
-      delay(10);
-      Serial.print("Start playing ");
-      Serial.println(idleTrack);
-    }
-  }
-  else if (strip1playMode == BUTTON_MODE || strip2playMode == BUTTON_MODE)
-  {
-    if ((strip1hasPlayModeChanged == true || strip2hasPlayModeChanged == true) && playSdWav1.isPlaying() == true)
-    {
-      playSdWav1.stop();
-      playSdWav1.play(activeTrack);
-      delay(10);
-      Serial.print("Start playing ");
-      Serial.println(activeTrack);
-      strip1hasPlayModeChanged = strip2hasPlayModeChanged = false;
-    }
-    else if (playSdWav1.isPlaying() == false)
-    {
-      playSdWav1.play(activeTrack);
-      delay(10);
-      Serial.print("Start playing ");
-      Serial.println(activeTrack);
-    }
-  }
-}
