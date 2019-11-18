@@ -95,13 +95,5 @@ void play_audio()
       Serial.println(activeTrack);
       strip1hasPlayModeChanged = strip2hasPlayModeChanged = false;
     }
-    else if (playSdWav1.isPlaying() == false)
-    {
-      playSdWav1.stop();
-      playSdWav1.play(activeTrack);
-      delay(10);
-      Serial.print("Start playing ");
-      Serial.println(activeTrack);
-    }
   }
 }

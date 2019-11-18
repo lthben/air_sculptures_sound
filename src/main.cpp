@@ -19,8 +19,8 @@
 //-------------------- USER DEFINED SETTINGS --------------------//
 
 //Uncomment one below
-#define __CO2__
-// #define __PM25__
+// #define __CO2__
+#define __PM25__
 
 //-------------------- Audio --------------------//
 
@@ -40,14 +40,13 @@ AudioControlSGTL5000 sgtl5000_1; //xy=615,336
 float vol = 0.7; //master volume gain 0.0 - 1.0
 
 #if defined(__CO2__)
-const char *idleTrack = "DRONE1.WAV";
-const char *activeTrack = "TINKLING.WAV";
-const long strip1playDur = 8000, strip2playDur = 10000; //msec duration for the button playback mode for each strip
-// const long strip1playDur = 17000, strip2playDur = 40000; //msec duration for the button playback mode for each strip
+const char *idleTrack = "AIRIDLE.WAV";
+const char *activeTrack = "AIR1.WAV";
+const long strip1playDur = 17000, strip2playDur = 40000; //msec duration for the button playback mode for each strip
 #elif defined(__PM25__)
-const char *idleTrack = "DRONE2.WAV";
-const char *activeTrack = "RAYGUN.WAV";
-const long strip1Dur = 20000, strip2Dur = 32000; //msec duration for the button playback mode for each strip
+const char *idleTrack = "AIRIDLE.WAV";
+const char *activeTrack = "AIR2.WAV";
+const long strip1playDur = 20000, strip2playDur = 32000; //msec duration for the button playback mode for each strip
 #endif 
 
 //-------------------- Buttons and distance sensor --------------------//
